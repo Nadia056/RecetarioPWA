@@ -1,0 +1,199 @@
+/* Estilo base para el cuerpo */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f7f7f7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+ 
+ 
+}
+
+/* Contenedor principal */
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px;
+  padding-bottom: 20px;
+  padding-top: 20px;
+}
+
+/* Contenedor del formulario */
+.form-container {
+  background-color: #E4E4E4;
+  border-radius: 8px;
+  padding: 20px 30px;
+  width: 90%;
+  margin-top: 0;
+  max-width: 800px;
+  min-width: 600px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: black;
+  font-size: 14px;
+}
+
+/* Estilo del logo */
+.logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logo h1 {
+  margin: 10px 0;
+  font-size: 24px;
+  color: black;
+}
+
+.logo p {
+  font-size: 14px;
+  color: black;
+}
+
+/* Estilo específico para la imagen del logo */
+.logo img {
+  max-width: 150px; /* Tamaño máximo para evitar que desborde */
+  height: auto;
+  display: block;
+  margin: 0 auto; /* Centra la imagen dentro del contenedor */
+}
+
+/* Campos de entrada y área de texto */
+.input-field,
+.textarea-field {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  background: white;
+  color: black;
+}
+
+/* Grupos de formulario */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+/* Botones de alternancia */
+.form-toggle {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.form-toggle button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  color: black;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.form-toggle button.active {
+  background-color: #84CBEA;
+  color: #333;
+  border-radius: 20px;
+}
+
+/* Formulario */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-group label {
+  margin-left: 5px;
+  margin-top: 10px;
+  font-size: 14px;
+  color: black;
+  text-align: left;
+}
+
+.form input {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: white;
+  color: black;
+}
+
+/* Botón de enviar */
+.submit-btn {
+  background-color: #84CBEA;
+  color: black;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #73BADC;
+}
+
+/* Estilos responsivos */
+@media (max-width: 800px) {
+  body {
+    height: auto;
+    padding: 20px;
+    margin-top: 0;
+  }
+
+  .form-container {
+    padding: 15px 20px;
+    width: 100%;
+    min-width: 300px;
+  }
+
+  .logo h1 {
+    font-size: 20px;
+  }
+
+  .logo p {
+    font-size: 12px;
+  }
+
+  .logo img {
+    max-width: 120px; /* Tamaño más pequeño en dispositivos pequeños */
+  }
+
+  .form-toggle button {
+    font-size: 12px;
+  }
+
+  .submit-btn {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .form-group label {
+    font-size: 12px;
+  }
+
+  .input-field,
+  .textarea-field {
+    font-size: 12px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: white;
+    color: black;
+  }
+}
+
