@@ -7,6 +7,7 @@ export default function RecipeList() {
     return (
       <div className="recipe-list">
         <h2>Recetas Destacadas</h2>
+       
         <div className="recipe-grid">
           {recipes.map((recipe, index) => (
             <div key={index} className="recipe-card">
@@ -15,6 +16,7 @@ export default function RecipeList() {
             </div>
           ))}
         </div>
+        
       </div>
     );
   }

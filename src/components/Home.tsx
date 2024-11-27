@@ -1,22 +1,24 @@
-import { Search } from 'lucide-react'
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-import { Card, CardContent } from "@/components/ui/card"
-import CategoryButton from "@/components/CategoryButton"
-import BottomNav from "@/components/BottomNavigation"
-import imagen from "../images/chef_icon.png"
-
+import { Search } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Card, CardContent } from "@/components/ui/card";
+import CategoryButton from "@/components/CategoryButton";
+import BottomNav from "@/components/BottomNavigation";
+import imagen from "../images/chef_icon.png";
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="flex items-center justify-between p-4 border-b ">
+      <header className="flex items-center justify-between p-4 border-b">
         <h1 className="text-xl font-bold">RecetApp</h1>
-        <Button variant="ghost" size="icon" className='bg-white'>+</Button>
+        <a href='/recetaNueva'>
+        <Button variant="ghost" size="icon" className="bg-white">+</Button>
+        </a>
       </header>
 
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto pb-16">
+        {/* Se añadió padding-bottom para evitar que el contenido se oculte detrás del BottomNav */}
         <div className="p-4 space-y-6">
           <div className="relative">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -27,7 +29,7 @@ export default function Home() {
             <div className="flex w-max space-x-4 p-1">
               <CategoryButton icon="plate" label="Todas" />
               <CategoryButton icon="search" label="Cocina" />
-              <CategoryButton icon="cake" label="Reposteria" />
+              <CategoryButton icon="cake" label="Repostería" />
               <CategoryButton icon="cocktail" label="Cócteles" />
               <CategoryButton icon="salad" label="Saludable" />
             </div>
@@ -37,29 +39,35 @@ export default function Home() {
           <section>
             <h2 className="text-xl font-semibold mb-4">Recetas Destacadas</h2>
             <div className="grid grid-cols-2 gap-4">
+            <a href="/receta">
               <Card className="border-none">
                 <CardContent className="p-0">
-                  <img 
-                  src={imagen}
-                  width={200}
-                  height={200}
-                  className="w-full aspect-square object-cover rounded-lg"
+                  <img
+                    src={imagen}
+                    width={200}
+                    height={200}
+                    className="w-full aspect-square object-cover rounded-lg"
                   />
-                 
                   <h3 className="font-medium mt-2 px-2">Pasta Carbonara</h3>
                 </CardContent>
+              
               </Card>
+              </a>
+
+              <a href="/receta">
               <Card className="border-none">
                 <CardContent className="p-0">
-                <img 
-                  src={imagen}
-                  width={200}
-                  height={200}
-                  className="w-full aspect-square object-cover rounded-lg"
+                  <img
+                    src={imagen}
+                    width={200}
+                    height={200}
+                    className="w-full aspect-square object-cover rounded-lg"
                   />
                   <h3 className="font-medium mt-2 px-2">Tarta de Manzana</h3>
                 </CardContent>
               </Card>
+              </a>
+           
             </div>
           </section>
         </div>
@@ -67,6 +75,5 @@ export default function Home() {
 
       <BottomNav />
     </div>
-  )
+  );
 }
-
