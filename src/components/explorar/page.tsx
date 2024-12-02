@@ -1,12 +1,94 @@
-import { Search } from 'lucide-react';
-import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
-import CategoryButton from "../CategoryButton";
+import CategoryButton from "../CategoryButton";  // Importamos el botón de categoría
 import BottomNav from "../BottomNavigation";
-import imagen from "../../images/chef_icon.png";
 
 export default function ExplorePage() {
+  interface Category {
+    id: number;
+    nombre: string;
+  }
+
+  interface Receta {
+    id: number;
+    titulo: string;
+    imagen?: string;
+  }
+
+  const [recetas, setRecetas] = useState<Receta[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const apiUrl = import.meta.env.VITE_API_URL;
+
+  // Obtener las categorías desde la API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const token = localStorage.getItem("authToken");
+
+      try {
+        const response = await fetch(`${apiUrl}/categorias`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.status === 200) {
+          setCategories(result.data.categorias);
+        } else {
+          console.error("Error al obtener categorías:", result.msg);
+        }
+      } catch (error) {
+        console.error("Error en la petición:", error);
+      }
+    };
+
+    fetchCategories();
+  }, [apiUrl]);
+
+  // Obtener recetas desde la API
+  const fetchRecetas = async (categoriaId?: number) => {
+    const token = localStorage.getItem("authToken");
+    const url = categoriaId
+      ? `${apiUrl}/recetas?categoria=${categoriaId}`
+      : `${apiUrl}/recetas`;
+
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.status === 200) {
+        setRecetas(result.data.recetas);
+      } else {
+        console.error("Error al obtener recetas:", result.msg);
+      }
+    } catch (error) {
+      console.error("Error en la petición:", error);
+    }
+  };
+
+  // Llamada inicial para cargar todas las recetas
+  useEffect(() => {
+    fetchRecetas();
+  }, []);
+
+  // Manejar clic en una categoría
+  const handleCategoryClick = (categoryId: number) => {
+    setSelectedCategory(categoryId);
+    fetchRecetas(categoryId); // Filtra las recetas por categoría
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <header className="flex items-center justify-between p-4 border-b">
@@ -14,47 +96,56 @@ export default function ExplorePage() {
       </header>
 
       <main className="flex-1 overflow-auto pb-16">
-        {/* Se añadió padding-bottom para evitar que el contenido quede detrás del BottomNav */}
         <div className="p-4 space-y-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Buscar recetas" className="pl-9" />
-          </div>
-
+          {/* Categorías obtenidas dinámicamente */}
           <ScrollArea className="w-full whitespace-nowrap">
             <div className="flex w-max space-x-4 p-1">
-              <CategoryButton icon="plate" label="Todas" />
-              <CategoryButton icon="search" label="Cocina" />
-              <CategoryButton icon="cake" label="Repostería" />
-              <CategoryButton icon="cocktail" label="Cócteles" />
-              <CategoryButton icon="salad" label="Saludable" />
+              {categories.map((category) => (
+                <CategoryButton
+                  key={category.id}
+                  label={category.nombre}
+                  icon="plate"  // Usa el icono que necesites
+                  onClick={() => handleCategoryClick(category.id)}  // Pasamos el onClick
+                />
+              ))}
             </div>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
 
           <section>
-            <h2 className="text-xl font-semibold mb-4">Todas las Recetas</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              {selectedCategory
+                ? `Recetas de la categoría ${categories.find((cat) => cat.id === selectedCategory)?.nombre}`
+                : "Todas las Recetas"}
+            </h2>
             <div className="grid grid-cols-2 gap-4">
-              {[...Array(6)].map((_, i) => (
-                <Card key={i} className="border-none">
-                  <CardContent className="p-0">
-                    <img
-                      src={imagen}
-                      alt={`Receta ${i + 1}`}
-                      width={200}
-                      height={200}
-                      className="w-full aspect-square object-cover rounded-lg"
-                    />
-                    <h3 className="font-medium mt-2 px-2">Receta {i + 1}</h3>
-                  </CardContent>
-                </Card>
-              ))}
+              {recetas.length > 0 ? (
+                recetas.map((receta) => (
+                  <a key={receta.id} href={`/receta/${receta.id}`}>
+                    <Card className="border-none">
+                      <CardContent className="p-0">
+                        <img
+                          src={`${import.meta.env.BASE_URL}images/${receta.imagen}`}
+                          alt={receta.titulo}
+                          width={200}
+                          height={200}
+                          className="w-full aspect-square object-cover rounded-lg"
+                        />
+                        <h3 className="font-medium mt-2 px-2">
+                          {receta.titulo}
+                        </h3>
+                      </CardContent>
+                    </Card>
+                  </a>
+                ))
+              ) : (
+                <p>No hay recetas disponibles.</p>
+              )}
             </div>
           </section>
         </div>
       </main>
 
-      {/* BottomNav fijo al final de la pantalla */}
       <BottomNav />
     </div>
   );

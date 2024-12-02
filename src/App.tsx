@@ -59,8 +59,8 @@ const App = () => {
 
   const loginSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const login = {  email, password };
-
+    const login = { email, password };
+  
     try {
       const response = await fetch(`${apiUrl}/login`, {
         method: "POST",
@@ -69,26 +69,44 @@ const App = () => {
         },
         body: JSON.stringify(login),
       });
-
+  
       if (response.ok) {
+        const data = await response.json();
+        const token = data.data.token.token;
+  
+        // Guardar el token en localStorage
+        localStorage.setItem("authToken", token);
+  
+        Swal.fire({
+          title: "Inicio de sesión exitoso",
+          text: "Bienvenido a RecetApp",
+          icon: "success",
+          confirmButtonText: "Aceptar",
+        });
+  
+        // Redirigir a la página de inicio
         window.location.href = "/home";
         setEmail('');
         setPassword('');
-
       } else {
-        //error de credenciales invalidas 
         Swal.fire({
           title: "Error",
           text: "Credenciales inválidas",
           icon: "error",
           confirmButtonText: "Aceptar",
         });
-       
       }
     } catch (error) {
-      console.error("Error:");
+      console.error("Error:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Ocurrió un problema con el servidor",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
     }
-  };
+  }
+  ;
 
   return (
     <div className="app-container">
