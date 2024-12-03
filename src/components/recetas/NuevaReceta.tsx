@@ -15,13 +15,13 @@ export default function NuevaReceta() {
   const [categorias, setCategorias] = useState<Categoria[]>([]) // Estado para las categorías
   const [titulo, setTitulo] = useState("")
   const [descripcion, setDescripcion] = useState("")
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [tiempo, setTiempo] = useState("")
   const [imagen, setImagen] = useState<File | null>(null)
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("")
   const [dificultadSeleccionada, setDificultadSeleccionada] = useState("")
   const [usuarioId, setUsuarioId] = useState<number | null>(null) 
   const token = localStorage.getItem("authToken") // Obtener el token de autenticación
-  
   const apiUrl = import.meta.env.VITE_API_URL
 
   // Cargar las categorías al montar el componente
@@ -56,9 +56,10 @@ export default function NuevaReceta() {
     const file = e.target.files?.[0]
     if (file) {
       setImagen(file)
+      setPreviewUrl(URL.createObjectURL(file));
     }
   }
-  
+
   const fetchUsuarioId = async () => {
     try {
       const response = await fetch(`${apiUrl}/authUser`, {
@@ -80,10 +81,41 @@ export default function NuevaReceta() {
     }
   }
 
-  // Enviar los datos del formulario
-  // Enviar los datos del formulario
+// Subir la imagen y devolver el nombre del archivo
+const uploadImage = async (file: File) => {
+  const formData = new FormData()
+  formData.append("imagen", file)
+
+  try {
+    const response = await fetch('http://localhost:3000/upload', {
+      method: 'POST',
+      body: formData,
+    })
+    const result = await response.json()
+
+    if (response.ok) {
+      // Retornar el `imageUrl` que contiene la URL del archivo subido
+      return result.imageUrl; // Aquí se usa la URL de la imagen subida
+    } else {
+      console.error('Error al subir la imagen:', result.message);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error en la carga de la imagen:', error);
+    return null;
+  }
+}
+
+
+// Enviar los datos del formulario
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault()
+
+  // Subir la imagen primero
+  let imageName = null
+  if (imagen) {
+    imageName = await uploadImage(imagen)  // Obtener el nombre del archivo
+  }
 
   const formData = new FormData()
   formData.append("titulo", titulo)
@@ -98,12 +130,13 @@ const handleSubmit = async (e: React.FormEvent) => {
     return
   }
   formData.append("fecha_publicacion", new Date().toISOString().split('T')[0]) // Fecha de publicación de hoy
-
-  if (imagen) {
-    const uniqueImageName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${imagen.name.split('.').pop()}`
-    formData.append("imagen", uniqueImageName) // Enviar solo el nombre de la imagen
+  if (imageName) {
+    formData.append("imagen", imageName)
   }
-
+  console.log("Datos del formulario:")
+  for (let [key, value] of formData.entries()) {
+    console.log(`${key}: ${value}`);
+  }
   try {
     const response = await fetch(`${apiUrl}/recetas`, {
       method: "POST",
@@ -115,20 +148,22 @@ const handleSubmit = async (e: React.FormEvent) => {
     const result = await response.json()
 
     if (response.ok && result.status === 200) {
-     Swal.fire({
+      Swal.fire({
         icon: "success",
         title: "Receta publicada",
         text: "Tu receta ha sido publicada correctamente",
         showConfirmButton: false,
         timer: 1500,
       })
+      // Limpiar el formulario
       setTitulo("")
       setDescripcion("")
       setTiempo("")
       setCategoriaSeleccionada("")
       setDificultadSeleccionada("")
       setImagen(null)
-      
+      setPreviewUrl(null)
+
     } else {
       console.error("Error al publicar receta:", result.msg)
     }
@@ -157,13 +192,29 @@ const handleSubmit = async (e: React.FormEvent) => {
               Imagen de la Receta
             </label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-              <Input id="imagen" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-              <label htmlFor="imagen" className="cursor-pointer">
-                <Plus className="mx-auto h-12 w-12 text-gray-400" />
-                <span className="mt-2 block text-sm font-medium text-gray-900">
-                  Añadir imagen de la receta
-                </span>
-              </label>
+              {previewUrl ? (
+                <img
+                  src={previewUrl}
+                  alt="Vista previa"
+                  className="mx-auto h-32 w-32 object-cover rounded-lg"
+                />
+              ) : (
+                <>
+                  <Input
+                    id="imagen"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
+                  <label htmlFor="imagen" className="cursor-pointer">
+                    <Plus className="mx-auto h-12 w-12 text-gray-400" />
+                    <span className="mt-2 block text-sm font-medium text-gray-900">
+                      Añadir imagen de la receta
+                    </span>
+                  </label>
+                </>
+              )}
             </div>
           </div>
 
@@ -206,15 +257,35 @@ const handleSubmit = async (e: React.FormEvent) => {
                   className="mr-2" 
                 />
                 <Select value="minutos">
-                  <SelectTrigger className="w-[110px]">
-                    <SelectValue placeholder="Unidad" />
+                  <SelectTrigger>
+                    <SelectValue>minutos</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="minutos">minutos</SelectItem>
-                    <SelectItem value="horas">horas</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div>
+              <label htmlFor="categoria" className="block text-sm font-medium mb-2">
+                Categoría
+              </label>
+              <Select
+                value={categoriaSeleccionada}
+                onValueChange={setCategoriaSeleccionada}
+              >
+                <SelectTrigger>
+                  <SelectValue>{categoriaSeleccionada || "Seleccionar"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {categorias.map(categoria => (
+                    <SelectItem key={categoria.id} value={categoria.id.toString()}>
+                      {categoria.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -228,28 +299,8 @@ const handleSubmit = async (e: React.FormEvent) => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="facil">Fácil</SelectItem>
-                <SelectItem value="media">Media</SelectItem>
+                <SelectItem value="medio">Medio</SelectItem>
                 <SelectItem value="dificil">Difícil</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          
-
-          <div>
-            <label htmlFor="categoria" className="block text-sm font-medium mb-2">
-              Categoría
-            </label>
-            <Select value={categoriaSeleccionada} onValueChange={setCategoriaSeleccionada}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Selecciona una categoría" />
-              </SelectTrigger>
-              <SelectContent>
-                {categorias.map((categoria) => (
-                  <SelectItem key={categoria.id} value={categoria.id.toString()}>
-                    {categoria.nombre}
-                  </SelectItem>
-                ))}
               </SelectContent>
             </Select>
           </div>

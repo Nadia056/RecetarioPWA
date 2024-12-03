@@ -118,20 +118,18 @@ export default function ExplorePage() {
                 ? `Recetas de la categoría ${categories.find((cat) => cat.id === selectedCategory)?.nombre}`
                 : "Todas las Recetas"}
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {recetas.length > 0 ? (
                 recetas.map((receta) => (
                   <a key={receta.id} href={`/receta/${receta.id}`}>
                     <Card className="border-none">
                       <CardContent className="p-0">
                         <img
-                          src={`${import.meta.env.BASE_URL}images/${receta.imagen}`}
+                          src={`${import.meta.env.BASE_URL}public${receta.imagen}`}
                           alt={receta.titulo}
-                          width={200}
-                          height={200}
                           className="w-full aspect-square object-cover rounded-lg"
                         />
-                        <h3 className="font-medium mt-2 px-2">
+                        <h3 className="font-medium mt-2 px-2 text-center sm:text-left">
                           {receta.titulo}
                         </h3>
                       </CardContent>

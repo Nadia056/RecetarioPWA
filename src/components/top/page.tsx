@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import BottomNav from "../BottomNavigation";
-import imagen from "../../images/chef_icon.png"
 
 interface Receta {
   id: number;
@@ -27,7 +26,7 @@ export default function TopPage() {
             Authorization: `Bearer ${token}`,
           },
         });
-       
+
         const result = await response.json();
 
         if (response.ok && result.status === 200) {
@@ -58,24 +57,23 @@ export default function TopPage() {
               {recetas.length > 0 ? (
                 recetas.map((receta, index) => (
                   <a key={receta.id} href={`/receta/${receta.id}`}>
-                  <Card key={receta.id} className="flex items-center space-x-4 p-4">
-                    <div className="flex-shrink-0">
-                      <img
-                        src={imagen} // Puedes actualizarlo a receta.imagen si la API lo proporciona
-                        alt={`Top Receta ${index + 1}`}
-                        width={80}
-                        height={80}
-                        className="rounded-lg object-cover"
-                      />
-                    </div>
-                    <div className="flex-grow">
-                      <h3 className="font-medium">{receta.titulo}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {receta.descripcion}
-                      </p>
-                    </div>
-                    <div className="text-2xl font-bold text-primary">#{index + 1}</div>
-                  </Card>
+                    <Card key={receta.id} className="flex flex-col sm:flex-row items-center sm:space-x-4 p-4">
+                      <div className="flex-shrink-0">
+                        <img
+                          src={`${import.meta.env.BASE_URL}public${receta.imagen}`} // Puedes actualizarlo a receta.imagen si la API lo proporciona
+                          alt={`Top Receta ${index + 1}`}
+                          width={80}
+                          height={80}
+                          className="rounded-lg object-cover"
+                        />
+                      </div>
+                      <div className="flex-grow mt-2 sm:mt-0">
+                        <h3 className="font-medium text-lg sm:text-xl">{receta.titulo}</h3>
+                      </div>
+                      <div className="text-xl sm:text-2xl font-bold text-primary mt-2 sm:mt-0">
+                        #{index + 1}
+                      </div>
+                    </Card>
                   </a>
                 ))
               ) : (

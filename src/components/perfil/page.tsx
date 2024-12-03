@@ -114,7 +114,7 @@ export default function PerfilPage() {
         <div className="p-4 space-y-6">
           <div className="flex items-center space-x-4">
             <img
-              src={imagen}
+              src={`${import.meta.env.BASE_URL}public${user?.imagen}`}
               alt="Foto de perfil"
               width={80}
               height={80}
@@ -136,19 +136,19 @@ export default function PerfilPage() {
               <div className="grid grid-cols-2 gap-4 mt-4">
                 {misRecetas.length > 0 ? (
                   misRecetas.map((receta) => (
-                  <a href={`/editarReceta/${receta.id}`} key={receta.id}>  
-                    <Card key={receta.id} className="border-none">
-                      <CardContent className="p-0">
-                        <img
-                          src={`${import.meta.env.BASE_URL}images/${receta.imagen}`} 
-                          alt={`Mi Receta ${receta.titulo}`}
-                          width={200}
-                          height={200}
-                          className="w-full aspect-square object-cover rounded-lg"
-                        />
-                        <h3 className="font-medium mt-2 px-2">{receta.titulo}</h3>
-                      </CardContent>
-                    </Card>
+                    <a href={`/editarReceta/${receta.id}`} key={receta.id}>
+                      <Card key={receta.id} className="border-none">
+                        <CardContent className="p-0">
+                          <img
+                            src={`${import.meta.env.BASE_URL}public${receta.imagen}`}
+                            alt={`Mi Receta ${receta.titulo}`}
+                            width={200}
+                            height={200}
+                            className="w-full aspect-square object-cover rounded-lg"
+                          />
+                          <h3 className="font-medium mt-2 px-2">{receta.titulo}</h3>
+                        </CardContent>
+                      </Card>
                     </a>
                   ))
                 ) : (
@@ -157,13 +157,15 @@ export default function PerfilPage() {
               </div>
             </TabsContent>
             <TabsContent value="guardadas">
+         
               <div className="grid grid-cols-2 gap-4 mt-4">
                 {recetasGuardadas.length > 0 ? (
                   recetasGuardadas.map((receta) => (
                     <Card key={receta.id} className="border-none">
+                      <a key={receta.id} href={`/receta/${receta.id}`}>
                       <CardContent className="p-0">
                         <img
-                          src={`${import.meta.env.BASE_URL}images/${receta.imagen}`} 
+                          src={`${import.meta.env.BASE_URL}public${receta.imagen}`}
                           alt={`Receta Guardada ${receta.titulo}`}
                           width={200}
                           height={200}
@@ -171,12 +173,14 @@ export default function PerfilPage() {
                         />
                         <h3 className="font-medium mt-2 px-2">{receta.titulo}</h3>
                       </CardContent>
+                      </a>
                     </Card>
                   ))
                 ) : (
                   <p>No tienes recetas guardadas.</p>
                 )}
               </div>
+              
             </TabsContent>
           </Tabs>
         </div>

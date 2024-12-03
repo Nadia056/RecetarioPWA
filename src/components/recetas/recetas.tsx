@@ -32,7 +32,8 @@ export default function RecetaDetalle() {
   const [receta, setReceta] = useState<Receta | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedRating, setSelectedRating] = useState<number>(0);
-  const [hasLiked, setHasLiked] = useState<boolean>(false);
+  const [meGusta, setHasLiked] = useState<boolean>(false);
+  const [comment, setComment] = useState("");
 
   const handleSendRating = async () => {
     if (selectedRating === 0) {
@@ -71,14 +72,62 @@ export default function RecetaDetalle() {
 
       } else {
         console.error(data.msg);
-        alert("Hubo un error al enviar tu valoración. Por favor, inténtalo de nuevo.");
+        Swal.fire({
+          title: "Error",
+          text: data.msg || "Error al enviar la valoración.",
+          icon: "error",
+          confirmButtonText: "Aceptar",
+        });
       }
     } catch (error) {
       console.error("Error al enviar la valoración:", error);
       alert("Error al conectar con el servidor.");
     } finally {
       setLoading(false);
+      fetchReceta();
     }
+  };
+
+
+  const comentarioSubmit = async () => {
+    const token = localStorage.getItem("authToken");
+    const apiUrl = import.meta.env.VITE_API_URL;
+
+
+    const response = await fetch(`${apiUrl}/comentarios`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+
+      body: JSON.stringify({
+        receta_id: id,
+        contenido: comment,
+      }),
+
+    });
+
+    if (response.ok) {
+      Swal.fire({
+        title: "Comentario enviado",
+        text: "Tu comentario ha sido enviado exitosamente.",
+        icon: "success",
+        confirmButtonText: "Aceptar",
+      });
+
+    }
+    else {
+      Swal.fire({
+        title: "Error",
+        text: "Error al enviar el comentario",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
+    }
+    setComment("");
+    fetchReceta();
+   
   };
   const handleLike = async () => {
     const token = localStorage.getItem("authToken");
@@ -97,9 +146,12 @@ export default function RecetaDetalle() {
         },
       });
 
-      if (response.ok) {
+
+      if (response.status === 200) {
         const data = await response.json();
-        setHasLiked(data.data.hasLiked);
+
+        setHasLiked(!meGusta);
+
         Swal.fire({
           title: data.msg || "Acción realizada",
           icon: "success",
@@ -136,34 +188,34 @@ export default function RecetaDetalle() {
     return `${minutos} min`;
   };
 
+  
+
+  const fetchReceta = async () => {
+    const token = localStorage.getItem("authToken");
+    const apiUrl = import.meta.env.VITE_API_URL;
+    try {
+      const response = await fetch(`${apiUrl}/recetas/show/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (data.status === 200) {
+        setHasLiked(data.data.meGusta);
+        setReceta(data.data.receta);
+      } else {
+        console.error(data.msg);
+      }
+    } catch (error) {
+      console.error("Error al obtener la receta:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Realiza la consulta para obtener la receta
-    const fetchReceta = async () => {
-      const token = localStorage.getItem("authToken");
-      const apiUrl = import.meta.env.VITE_API_URL;
-      try {
-        const response = await fetch(`${apiUrl}/recetas/show/${id}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const data = await response.json();
-        if (data.status === 200) {
-          setHasLiked(data.data.hasLiked);
-          setReceta(data.data.receta);
-        } else {
-          console.error(data.msg);
-        }
-      } catch (error) {
-        console.error("Error al obtener la receta:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-
+  
     fetchReceta();
   }, [id]);
 
@@ -179,14 +231,14 @@ export default function RecetaDetalle() {
     <div className="flex flex-col min-h-screen bg-background">
       <header className="relative">
         <img
-          src={receta.imagen ? `../images/${receta.imagen}` : "/placeholder.svg"}
+          src={`${import.meta.env.BASE_URL}public${receta.imagen}`}
           alt={`Imagen de la receta ${receta.titulo}`}
           width={500}
           height={300}
           className="w-full h-64 object-cover"
         />
         <a href="/home" className="absolute top-4 left-4">
-          <Button variant="ghost" size="icon" className="bg-background/50 backdrop-blur-sm">
+          <Button variant="ghost" size="icon" className="bg-background/50 backdrop-blur-sm ">
             <ArrowLeft className="h-6 w-6" />
           </Button>
         </a>
@@ -198,7 +250,7 @@ export default function RecetaDetalle() {
           disabled={loading}
         >
           <Heart
-            className={`h-6 w-6 transition-colors ${hasLiked ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
+            className={`h-6 w-6 transition-colors ${meGusta ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
           />
         </Button>
 
@@ -330,9 +382,24 @@ export default function RecetaDetalle() {
 
         </Tabs>
 
-        <Button className="w-full">
-          <MessageCircle className="mr-2 h-4 w-4" /> Añadir Comentario
-        </Button>
+        <form
+           onSubmit={(e) => {
+            e.preventDefault(); 
+            comentarioSubmit(); 
+          }}
+          className="flex flex-col w-full max-w-md p-6 border rounded shadow-sm bg-white"
+        >
+          <textarea
+            className="w-full p-2 mb-4 border rounded resize-none focus:outline-none focus:ring focus:border-blue-300 bg-gray-50"
+            rows={6}
+            placeholder="Escribe tu comentario aquí..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          ></textarea>
+          <Button type="submit" className="w-full">
+            <MessageCircle className="mr-2 h-4 w-4" /> Enviar Comentario
+          </Button>
+        </form>
       </main>
     </div>
   );

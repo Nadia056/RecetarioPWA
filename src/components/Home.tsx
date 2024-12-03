@@ -31,7 +31,6 @@ export default function Home() {
 
         if (response.ok && result.status === 200) {
           setRecetas(result.data.recetas); // Asegúrate de que la API retorna un campo `recetas`
-          
         } else {
           console.error("Error al obtener recetas:", result.msg);
         }
@@ -59,20 +58,18 @@ export default function Home() {
         <div className="p-4 space-y-6">
           <section>
             <h2 className="text-xl font-semibold mb-4">Recetas Destacadas</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {recetas.length > 0 ? (
                 recetas.map((receta) => (
                   <a key={receta.id} href={`/receta/${receta.id}`}>
                     <Card className="border-none">
                       <CardContent className="p-0">
                         <img
-                          src={`${import.meta.env.BASE_URL}images/${receta.imagen}`} 
-                          alt={receta.imagen}
-                          width={200}
-                          height={200}
+                          src={`${import.meta.env.BASE_URL}public${receta.imagen}`}
+                          alt={receta.titulo}
                           className="w-full aspect-square object-cover rounded-lg"
                         />
-                        <h3 className="font-medium mt-2 px-2">
+                        <h3 className="font-medium mt-2 px-2 text-center sm:text-left">
                           {receta.titulo}
                         </h3>
                       </CardContent>
